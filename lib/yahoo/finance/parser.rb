@@ -13,7 +13,7 @@ module Yahoo
         data                =   []
         parsed              =   parsed.fetch("chart", {}).fetch("result", []).first
         meta                =   parsed.fetch("meta", {})
-        timestamps          =   parsed.fetch("timestamp", []).collect { |epoch| convert_epoch_to_datetime(epoch) }
+        timestamps          =   parsed.fetch("timestamp", []).collect { |epoch| convert_epoch_to_time(epoch) }
         
         indicators          =   parsed.fetch("indicators", {})
         quote               =   indicators.fetch("quote", []).first
@@ -47,8 +47,8 @@ module Yahoo
         Indicators::Data.new(data).calc(type: type, params: count).output
       end
       
-      def convert_epoch_to_datetime(epoch)
-        Time.at(epoch).utc
+      def convert_epoch_to_time(epoch)
+        Time.at(epoch)
       end
       
     end
