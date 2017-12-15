@@ -10,34 +10,37 @@ module Yahoo
       end
       
       def parse_prices(parsed)
-        data                =   []
-        parsed              =   parsed.fetch("chart", {}).fetch("result", []).first
-        meta                =   parsed.fetch("meta", {})
-        timestamps          =   parsed.fetch("timestamp", []).collect { |epoch| convert_epoch_to_time(epoch) }
+        data                  =   []
+        parsed                =   parsed.fetch("chart", {}).fetch("result", [])&.first
         
-        indicators          =   parsed.fetch("indicators", {})
-        quote               =   indicators.fetch("quote", []).first
+        if parsed
+          meta                =   parsed.fetch("meta", {})
+          timestamps          =   parsed.fetch("timestamp", []).collect { |epoch| convert_epoch_to_time(epoch) }
         
-        lows                =   quote.fetch("low", [])
-        highs               =   quote.fetch("high", [])
-        closes              =   quote.fetch("close", [])
-        opens               =   quote.fetch("open", [])
-        volumes             =   quote.fetch("volume", [])
+          indicators          =   parsed.fetch("indicators", {})
+          quote               =   indicators.fetch("quote", [])&.first
+          
+          lows                =   quote.fetch("low", [])
+          highs               =   quote.fetch("high", [])
+          closes              =   quote.fetch("close", [])
+          opens               =   quote.fetch("open", [])
+          volumes             =   quote.fetch("volume", [])
         
-        unadjusted_closes   =   indicators.fetch("unadjclose", []).first.fetch("unadjclose", [])
-        adjusted_closes     =   indicators.fetch("adjclose", []).first.fetch("adjclose", [])
+          unadjusted_closes   =   indicators.fetch("unadjclose", [])&.first&.fetch("unadjclose", [])
+          adjusted_closes     =   indicators.fetch("adjclose", [])&.first&.fetch("adjclose", [])
 
-        timestamps.each_with_index do |timestamp, index|
-          data  <<   {
-            time:               timestamp,
-            low:                lows[index],
-            high:               highs[index],
-            open:               opens[index],
-            close:              closes[index],
-            volume:             volumes[index],
-            unadjusted_close:   unadjusted_closes[index],
-            adjusted_close:     adjusted_closes[index]
-          }
+          timestamps.each_with_index do |timestamp, index|
+            data  <<   {
+              time:               timestamp,
+              low:                lows[index],
+              high:               highs[index],
+              open:               opens[index],
+              close:              closes[index],
+              volume:             volumes[index],
+              unadjusted_close:   unadjusted_closes[index],
+              adjusted_close:     adjusted_closes[index]
+            }
+          end
         end
         
         return data
